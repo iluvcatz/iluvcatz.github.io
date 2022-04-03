@@ -1,0 +1,114 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>twitter link webhook</title>
+    <!--<script>
+        function send(){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://WebhookSend.axvre.repl.co/webhook", true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                sendtype: "send"
+            }));
+        }
+        function sendWithHere(){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://WebhookSend.axvre.repl.co/webhook", true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                sendtype: "sendwithhere"
+            }));
+        }
+    </script> -->
+    <script>
+        function send(){
+            var url = "https://WebhookSend.axvre.repl.co/webhook";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url);
+
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+            }};
+
+            var data = `{
+            "sendtype": "send"
+            }`;
+
+            xhr.send(data);
+        }
+        function sendWithHere(){
+            var url = "https://WebhookSend.axvre.repl.co/webhook";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url);
+
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+            }};
+
+            var data = `{
+            "sendtype": "sendwithhere"
+            }`;
+
+            xhr.send(data);
+        }
+    </script>
+    <style>
+        body {
+            background-color: #242424;
+            font-family: roc-grotesk, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            text-align: center;
+        }
+        .container {
+        height: 100%;
+        width: 100%;
+        position: relative;
+        border: 0px;
+        }
+        .center {
+            margin: 0;
+            position: relative;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+        p{
+            font-size: 15;
+            color: #b5b5b5;
+        }
+        button{
+            height: 10vh;
+            width: 15vw;
+            background-color: #1a1919;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="center" style="margin-bottom: 20px">
+            <button onclick="send()">
+                <p>Normal send</p>
+            </button>
+        </div>
+        <div class="center">
+            <button onclick="sendWithHere()">
+                <p>Send with @here</p>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
